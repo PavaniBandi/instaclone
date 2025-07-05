@@ -44,17 +44,8 @@ public class User {
     @Column(name = "profile_picture")
     private String profilePicture;
     
-    @Column(name = "is_private")
-    private Boolean isPrivate = false;
-    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
-    @Column(name = "role")
-    private String role = "USER";
     
     // Followers relationship
     @ManyToMany(fetch = FetchType.LAZY)
@@ -77,12 +68,6 @@ public class User {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
     
     // Helper methods for followers/following

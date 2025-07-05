@@ -2,34 +2,26 @@ import { useEffect, useState } from 'react';
 import { apiRequest } from '../api.jsx';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
-import StoriesBar from '../components/StoriesBar.jsx';
 
 export default function Feed({ token, onLogout }) {
   const [posts, setPosts] = useState([]);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [commentingPost, setCommentingPost] = useState(null);
   const [commentText, setCommentText] = useState('');
-  const [commentLoading, setCommentLoading] = useState(false);
-  const [expandedComments, setExpandedComments] = useState(new Set());
+
 
   useEffect(() => {
-    fetchPosts(0, true);
-    // eslint-disable-next-line
+    fetchPosts();
   }, [token]);
 
 
 
-  const fetchPosts = async (pageNum = 0, reset = false) => {
+  const fetchPosts = async () => {
     setLoading(true);
     try {
-      const res = await apiRequest(`/posts/feed?page=${pageNum}&size=10`, 'GET', null, token);
-      const newPosts = reset ? res.content : [...posts, ...res.content];
-      setPosts(newPosts);
-      setHasMore(!res.last);
-      setPage(pageNum);
+      const res = await apiRequest('/posts/feed?page=0&size=50', 'GET', null, token);
+      setPosts(res.content);
     } catch (err) {
       console.error('Error fetching posts:', err);
       setError('Failed to load posts');
@@ -37,45 +29,17 @@ export default function Feed({ token, onLogout }) {
     setLoading(false);
   };
 
-  const handleLoadMore = () => {
-    if (!loading && hasMore) fetchPosts(page + 1);
-  };
-
   const handleLike = async (postId, isLiked) => {
     try {
-      // Optimistically update the UI first
-      setPosts(prevPosts => 
-        prevPosts.map(post => 
-          post.id === postId 
-            ? { 
-                ...post, 
-                isLiked: !isLiked,
-                likesCount: isLiked ? post.likesCount - 1 : post.likesCount + 1
-              }
-            : post
-        )
-      );
-
-      // Then make the API call
       if (isLiked) {
         await apiRequest(`/posts/${postId}/like`, 'DELETE', null, token);
       } else {
         await apiRequest(`/posts/${postId}/like`, 'POST', null, token);
       }
+      // Refresh posts to get updated like status
+      fetchPosts();
     } catch (err) {
       console.error('Error toggling like:', err);
-      // Revert the optimistic update on error
-      setPosts(prevPosts => 
-        prevPosts.map(post => 
-          post.id === postId 
-            ? { 
-                ...post, 
-                isLiked: isLiked,
-                likesCount: isLiked ? post.likesCount + 1 : post.likesCount - 1
-              }
-            : post
-        )
-      );
     }
   };
 
@@ -93,45 +57,25 @@ export default function Feed({ token, onLogout }) {
   const handleCommentSubmit = async (postId) => {
     if (!commentText.trim()) return;
     
-    setCommentLoading(true);
     try {
       await apiRequest(`/posts/${postId}/comments`, 'POST', commentText, token);
       setCommentText('');
       setCommentingPost(null);
       
-      // Update the specific post's comment count locally
-      setPosts(prevPosts => 
-        prevPosts.map(post => 
-          post.id === postId 
-            ? { 
-                ...post, 
-                commentsCount: post.commentsCount + 1
-              }
-            : post
-        )
-      );
+      // Refresh posts to get updated comment count
+      fetchPosts();
     } catch (err) {
       console.error('Error adding comment:', err);
     }
-    setCommentLoading(false);
   };
 
-  const toggleComments = (postId) => {
-    const newExpanded = new Set(expandedComments);
-    if (newExpanded.has(postId)) {
-      newExpanded.delete(postId);
-    } else {
-      newExpanded.add(postId);
-    }
-    setExpandedComments(newExpanded);
-  };
+
 
 
 
   return (
     <Layout token={token} onLogout={onLogout}>
       <div className="w-full max-w-2xl bg-white rounded-lg border border-gray-200 shadow-sm mb-8">
-        <StoriesBar />
         {error && (
           <div className="w-full bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
             <p className="text-red-600 text-center">{error}</p>
@@ -199,32 +143,10 @@ export default function Feed({ token, onLogout }) {
                 <span className="text-gray-800 text-sm">{post.caption}</span>
               </div>
               
-              {/* Comment count and expandable comments */}
+              {/* Comment count */}
               {post.commentsCount > 0 && (
-                <div>
-                  <button 
-                    onClick={() => toggleComments(post.id)}
-                    className="text-gray-500 text-sm hover:text-gray-700"
-                  >
-                    {expandedComments.has(post.id) ? 'Hide' : 'View all'} {post.commentsCount} comment{post.commentsCount !== 1 ? 's' : ''}
-                  </button>
-                  
-                  {/* Show recent comments when expanded */}
-                  {expandedComments.has(post.id) && post.comments && post.comments.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {post.comments.slice(0, 3).map(comment => (
-                        <div key={comment.id} className="flex items-start">
-                          <span className="font-semibold text-sm mr-2">{comment.user.username}</span>
-                          <span className="text-gray-800 text-sm">{comment.content}</span>
-                        </div>
-                      ))}
-                      {post.comments.length > 3 && (
-                        <span className="text-gray-500 text-sm">
-                          View all {post.comments.length} comments
-                        </span>
-                      )}
-                    </div>
-                  )}
+                <div className="text-gray-500 text-sm">
+                  {post.commentsCount} comment{post.commentsCount !== 1 ? 's' : ''}
                 </div>
               )}
               
@@ -243,29 +165,23 @@ export default function Feed({ token, onLogout }) {
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     className="flex-1 border-none outline-none text-sm resize-none"
-                    disabled={commentLoading}
                   />
                   <button
                     type="submit"
-                    disabled={commentLoading || !commentText.trim()}
+                    disabled={!commentText.trim()}
                     className={`ml-2 text-sm font-semibold ${
-                      commentLoading || !commentText.trim()
+                      !commentText.trim()
                         ? 'text-blue-300 cursor-not-allowed'
                         : 'text-blue-500 hover:text-blue-600'
                     }`}
                   >
-                    {commentLoading ? 'Posting...' : 'Post'}
+                    Post
                   </button>
                 </form>
               )}
             </div>
           </div>
         ))}
-        {hasMore && (
-          <button onClick={handleLoadMore} className="w-full bg-blue-500 text-white py-2 rounded font-semibold hover:bg-blue-600 mb-8" disabled={loading}>
-            {loading ? 'Loading...' : 'Load More'}
-          </button>
-        )}
         {posts.length === 0 && !loading && !error && (
           <div className="w-full bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
             <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,7 +197,7 @@ export default function Feed({ token, onLogout }) {
             </button>
           </div>
         )}
-        {!hasMore && posts.length > 0 && <div className="text-center text-gray-400 mb-8">No more posts</div>}
+
       </div>
     </Layout>
   );

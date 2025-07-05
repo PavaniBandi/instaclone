@@ -1,15 +1,8 @@
 import { useState } from 'react';
 import { apiRequest } from '../api.jsx';
-import { setToken } from '../utils/auth.jsx';
+
 import { Link, useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer.jsx';
-import logo from '../assets/instagram-logo.svg';
-
-const mockupImages = [
-  'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=500&q=80',
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&h=500&q=80',
-  'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=400&h=500&q=80',
-];
 
 export default function Signup({ setToken: setAppToken }) {
   const [email, setEmail] = useState('');
@@ -18,18 +11,13 @@ export default function Signup({ setToken: setAppToken }) {
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const [mockupIdx, setMockupIdx] = useState(0);
-
-  // Simple image carousel
-  // eslint-disable-next-line
-  setTimeout(() => setMockupIdx((mockupIdx + 1) % mockupImages.length), 3000);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
       const res = await apiRequest('/auth/signup', 'POST', { email, username, password, fullName });
-      setToken(res.token);
+      localStorage.setItem('token', res.token);
       setAppToken(res.token);
       navigate('/');
     } catch (err) {
@@ -43,14 +31,14 @@ export default function Signup({ setToken: setAppToken }) {
         <div className="w-full max-w-4xl flex bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="hidden md:block w-1/2 bg-gray-100">
             <img
-              src={mockupImages[mockupIdx]}
+              src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=500&q=80"
               alt="Instagram mockup"
               className="object-cover w-full h-full"
             />
           </div>
           <div className="w-full md:w-1/2 flex flex-col justify-center p-10">
             <div className="flex flex-col items-center">
-              <img src={logo} alt="Instagram" className="h-14 mb-8" />
+              <span className="text-4xl font-bold font-sans mb-8 tracking-tight">Instagram</span>
               <form onSubmit={handleSubmit} className="w-full flex flex-col">
                 {error && <div className="text-red-500 mb-2 text-center">{error}</div>}
                 <input

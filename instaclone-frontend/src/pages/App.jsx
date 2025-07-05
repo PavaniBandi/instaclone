@@ -7,17 +7,17 @@ import Profile from './pages/Profile.jsx';
 import PostDetail from './pages/PostDetail.jsx';
 import NotFound from './pages/NotFound.jsx';
 import CreatePost from './pages/CreatePost.jsx';
-import { getToken, removeToken } from './utils/auth.jsx';
+
 
 function App() {
-  const [token, setToken] = useState(getToken());
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
-    setToken(getToken());
+    setToken(localStorage.getItem('token'));
   }, []);
 
   const handleLogout = () => {
-    removeToken();
+    localStorage.removeItem('token');
     setToken(null);
   };
 

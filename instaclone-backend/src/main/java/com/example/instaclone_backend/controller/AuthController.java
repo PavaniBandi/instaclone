@@ -39,7 +39,7 @@ public class AuthController {
             Map<String, Object> claims = new HashMap<>();
             claims.put("userId", createdUser.getId());
             claims.put("email", createdUser.getEmail());
-            claims.put("role", createdUser.getRole());
+            claims.put("role", "USER");
             
             String token = jwtUtil.generateToken(createdUser.getEmail(), claims);
             
@@ -69,7 +69,7 @@ public class AuthController {
             Map<String, Object> claims = new HashMap<>();
             claims.put("userId", user.getId());
             claims.put("email", user.getEmail());
-            claims.put("role", user.getRole());
+            claims.put("role", "USER");
             
             String token = jwtUtil.generateToken(user.getEmail(), claims);
             

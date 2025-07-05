@@ -1,7 +1,6 @@
 package com.example.instaclone_backend.service;
 
 import com.example.instaclone_backend.dto.PostDto;
-import com.example.instaclone_backend.dto.CommentDto;
 import com.example.instaclone_backend.entity.Post;
 import com.example.instaclone_backend.entity.User;
 import com.example.instaclone_backend.entity.Comment;
@@ -12,8 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 public class PostService {
@@ -54,6 +52,7 @@ public class PostService {
     public void likePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
+        
         User user = userService.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
@@ -66,6 +65,7 @@ public class PostService {
     public void unlikePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
+        
         User user = userService.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
@@ -89,12 +89,7 @@ public class PostService {
         return commentRepository.save(comment);
     }
     
-    public List<CommentDto> getPostComments(Long postId) {
-        List<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtAsc(postId);
-        return comments.stream()
-                .map(this::convertCommentToDto)
-                .collect(Collectors.toList());
-    }
+
     
     public void deletePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
@@ -125,19 +120,10 @@ public class PostService {
             }
         }
         
-        // Load comments for detailed post view
-        List<CommentDto> comments = getPostComments(post.getId());
-        dto.setComments(comments);
-        
         return dto;
     }
     
-    private CommentDto convertCommentToDto(Comment comment) {
-        CommentDto dto = new CommentDto();
-        dto.setId(comment.getId());
-        dto.setUser(userService.getUserProfile(comment.getUser().getId(), null));
-        dto.setContent(comment.getContent());
-        dto.setCreatedAt(comment.getCreatedAt());
-        return dto;
-    }
+
+    
+
 } 

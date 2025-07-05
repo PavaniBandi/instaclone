@@ -34,9 +34,6 @@ public class Post {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
     // Likes relationship
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -53,12 +50,6 @@ public class Post {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
     
     // Helper methods

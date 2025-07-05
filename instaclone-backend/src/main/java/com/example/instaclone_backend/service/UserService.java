@@ -73,9 +73,6 @@ public class UserService {
         if (userDto.getProfilePicture() != null) {
             user.setProfilePicture(userDto.getProfilePicture());
         }
-        if (userDto.getIsPrivate() != null) {
-            user.setIsPrivate(userDto.getIsPrivate());
-        }
         
         return userRepository.save(user);
     }
@@ -131,16 +128,30 @@ public class UserService {
                 .collect(Collectors.toList());
     }
     
+    public List<UserDto> getSuggestions(Long currentUserId) {
+        User currentUser = findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
+        
+        List<User> allUsers = userRepository.findAll();
+        
+        // Filter out current user and already followed users
+        List<User> suggestions = allUsers.stream()
+                .filter(user -> !user.getId().equals(currentUserId))
+                .filter(user -> !currentUser.getFollowing().contains(user))
+                .collect(Collectors.toList());
+        
+        return suggestions.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    
     private UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
-        dto.setEmail(user.getEmail());
         dto.setUsername(user.getUsername());
         dto.setFullName(user.getFullName());
         dto.setBio(user.getBio());
         dto.setProfilePicture(user.getProfilePicture());
-        dto.setIsPrivate(user.getIsPrivate());
-        dto.setCreatedAt(user.getCreatedAt());
         dto.setFollowersCount(user.getFollowersCount());
         dto.setFollowingCount(user.getFollowingCount());
         return dto;

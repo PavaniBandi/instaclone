@@ -1,7 +1,6 @@
 package com.example.instaclone_backend.controller;
 
 import com.example.instaclone_backend.dto.PostDto;
-import com.example.instaclone_backend.dto.CommentDto;
 import com.example.instaclone_backend.entity.Post;
 import com.example.instaclone_backend.entity.User;
 import com.example.instaclone_backend.service.PostService;
@@ -15,7 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/posts")
@@ -28,13 +27,16 @@ public class PostController {
     @Autowired
     private UserService userService;
     
-    @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody Post post) {
+    private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        
-        User user = userService.findByEmail(email)
+        return userService.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    
+    @PostMapping
+    public ResponseEntity<PostDto> createPost(@RequestBody Post post) {
+        User user = getCurrentUser();
         
         post.setUser(user);
         Post createdPost = postService.createPost(post);
@@ -48,12 +50,7 @@ public class PostController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User user = getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
         Page<PostDto> posts = postService.getFeed(user.getId(), pageable);
         
@@ -62,12 +59,7 @@ public class PostController {
     
     @GetMapping("/{postId}")
     public ResponseEntity<PostDto> getPost(@PathVariable Long postId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User user = getCurrentUser();
         PostDto post = postService.getPostById(postId, user.getId());
         return ResponseEntity.ok(post);
     }
@@ -78,12 +70,7 @@ public class PostController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        
-        User currentUser = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User currentUser = getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
         Page<PostDto> posts = postService.getUserPosts(userId, currentUser.getId(), pageable);
         
@@ -92,64 +79,31 @@ public class PostController {
     
     @PostMapping("/{postId}/like")
     public ResponseEntity<String> likePost(@PathVariable Long postId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User user = getCurrentUser();
         postService.likePost(postId, user.getId());
         return ResponseEntity.ok("Post liked successfully");
     }
     
     @DeleteMapping("/{postId}/like")
     public ResponseEntity<String> unlikePost(@PathVariable Long postId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User user = getCurrentUser();
         postService.unlikePost(postId, user.getId());
         return ResponseEntity.ok("Post unliked successfully");
     }
     
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<CommentDto> addComment(
+    public ResponseEntity<String> addComment(
             @PathVariable Long postId,
             @RequestBody String content) {
         
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User user = getCurrentUser();
         postService.addComment(postId, user.getId(), content);
-        
-        // Return the latest comment
-        List<CommentDto> comments = postService.getPostComments(postId);
-        if (!comments.isEmpty()) {
-            return ResponseEntity.ok(comments.get(comments.size() - 1));
-        }
-        
-        return ResponseEntity.ok(null);
-    }
-    
-    @GetMapping("/{postId}/comments")
-    public ResponseEntity<List<CommentDto>> getComments(@PathVariable Long postId) {
-        List<CommentDto> comments = postService.getPostComments(postId);
-        return ResponseEntity.ok(comments);
+        return ResponseEntity.ok("Comment added successfully");
     }
     
     @DeleteMapping("/{postId}")
     public ResponseEntity<String> deletePost(@PathVariable Long postId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User user = getCurrentUser();
         postService.deletePost(postId, user.getId());
         return ResponseEntity.ok("Post deleted successfully");
     }

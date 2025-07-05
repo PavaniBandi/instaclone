@@ -1,32 +1,23 @@
 import { useState } from 'react';
 import { apiRequest } from '../api.jsx';
-import { setToken } from '../utils/auth.jsx';
+
 import { Link, useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer.jsx';
 
-const mockupImages = [
-  'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=500&q=80',
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&h=500&q=80',
-  'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=400&h=500&q=80',
-];
+
 
 export default function Login({ setToken: setAppToken }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const [mockupIdx, setMockupIdx] = useState(0);
-
-  // Simple image carousel
-  // eslint-disable-next-line
-  setTimeout(() => setMockupIdx((mockupIdx + 1) % mockupImages.length), 3000);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
       const res = await apiRequest('/auth/login', 'POST', { email, password });
-      setToken(res.token);
+      localStorage.setItem('token', res.token);
       setAppToken(res.token);
       navigate('/');
     } catch (err) {
@@ -40,7 +31,7 @@ export default function Login({ setToken: setAppToken }) {
         <div className="w-full max-w-4xl flex bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="hidden md:block w-1/2 bg-gray-100">
             <img
-              src={mockupImages[mockupIdx]}
+              src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=500&q=80"
               alt="Instagram mockup"
               className="object-cover w-full h-full"
             />

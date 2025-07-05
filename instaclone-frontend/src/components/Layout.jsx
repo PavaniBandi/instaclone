@@ -8,12 +8,14 @@ export default function Layout({ children, token, onLogout }) {
   const [suggestedUsers, setSuggestedUsers] = useState([]);
 
   useEffect(() => {
-    const fetchAll = async () => {
-      await fetchCurrentUser();
-      await fetchSuggestions();
-    };
-    fetchAll();
-  }, [token]);
+    fetchCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchSuggestions();
+    }
+  }, [currentUser]);
 
   const fetchCurrentUser = async () => {
     try {
@@ -26,20 +28,7 @@ export default function Layout({ children, token, onLogout }) {
 
   const fetchSuggestions = async () => {
     try {
-      const allUsers = await apiRequest('/users/search?q=', 'GET', null, token);
-      // Get current user data directly instead of relying on state
-      const currentUserData = await apiRequest('/users/profile', 'GET', null, token);
-      if (!currentUserData) return;
-      const followingIds = Array.isArray(currentUserData.following)
-        ? currentUserData.following.map(u => (typeof u === 'object' ? u.id : u))
-        : [];
-      const suggestions = allUsers
-        .filter(u => u.id !== currentUserData.id) // Exclude current user
-        .filter(u => !followingIds.includes(u.id)) // Exclude already followed users
-        .map(u => ({
-          ...u,
-          isFollowed: false // All remaining users are not followed
-        }));
+      const suggestions = await apiRequest('/users/suggestions', 'GET', null, token);
       setSuggestedUsers(suggestions);
     } catch (err) {
       console.error('Error fetching suggestions:', err);
@@ -66,7 +55,6 @@ export default function Layout({ children, token, onLogout }) {
         <Suggestions
           user={currentUser}
           suggestions={suggestedUsers}
-          token={token}
         />
       </div>
     </div>

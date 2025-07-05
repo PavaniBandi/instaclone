@@ -7,24 +7,17 @@ import Profile from './pages/Profile.jsx';
 import PostDetail from './pages/PostDetail.jsx';
 import NotFound from './pages/NotFound.jsx';
 import CreatePost from './pages/CreatePost.jsx';
-import { getToken, removeToken, isTokenValid } from './utils/auth.jsx';
+
 
 function App() {
-  const [token, setToken] = useState(getToken());
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
-    const currentToken = getToken();
-    console.log('Current token:', currentToken ? 'exists' : 'null');
-    if (isTokenValid(currentToken)) {
-      setToken(currentToken);
-    } else {
-      setToken(null);
-      removeToken(); // Clean up invalid token
-    }
+    setToken(localStorage.getItem('token'));
   }, []);
 
   const handleLogout = () => {
-    removeToken();
+    localStorage.removeItem('token');
     setToken(null);
   };
 

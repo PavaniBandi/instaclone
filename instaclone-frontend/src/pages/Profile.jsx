@@ -31,7 +31,7 @@ export default function Profile({ token, onLogout }) {
       setForm({ fullName: res.fullName || '', bio: res.bio || '', profilePicture: res.profilePicture || '' });
       fetchPosts(res.id);
     } catch (err) {
-      // handle error
+      console.error('Error fetching profile:', err);
     }
     setLoading(false);
   };
@@ -40,7 +40,9 @@ export default function Profile({ token, onLogout }) {
     try {
       const res = await apiRequest(`/posts/user/${id}?page=0&size=10`, 'GET', null, token);
       setPosts(res.content || []);
-    } catch (err) {}
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+    }
   };
 
 
@@ -55,16 +57,27 @@ export default function Profile({ token, onLogout }) {
       await apiRequest('/users/profile', 'PUT', form, token);
       setEditing(false);
       fetchProfile();
-    } catch (err) {}
+    } catch (err) {
+      console.error('Error saving profile:', err);
+    }
   };
 
   const handleFollow = async () => {
-    await apiRequest(`/users/${profile.id}/follow`, 'POST', null, token);
-    fetchProfile();
+    try {
+      await apiRequest(`/users/${profile.id}/follow`, 'POST', null, token);
+      fetchProfile();
+    } catch (err) {
+      console.error('Error following user:', err);
+    }
   };
+  
   const handleUnfollow = async () => {
-    await apiRequest(`/users/${profile.id}/follow`, 'DELETE', null, token);
-    fetchProfile();
+    try {
+      await apiRequest(`/users/${profile.id}/follow`, 'DELETE', null, token);
+      fetchProfile();
+    } catch (err) {
+      console.error('Error unfollowing user:', err);
+    }
   };
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
