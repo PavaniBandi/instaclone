@@ -1,5 +1,5 @@
 // const API_BASE = "http://localhost:8080";
-const API_BASE = "http://instaclone-production-159e.up.railway.app";
+const API_BASE = "https://instaclone-production-159e.up.railway.app";
 
 export async function apiRequest(
   path,
