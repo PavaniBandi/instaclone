@@ -1,20 +1,27 @@
 package com.example.instaclone_backend.controller;
 
-import com.example.instaclone_backend.entity.User;
-import com.example.instaclone_backend.security.JwtUtil;
-import com.example.instaclone_backend.service.UserService;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.instaclone_backend.entity.User;
+import com.example.instaclone_backend.security.JwtUtil;
+import com.example.instaclone_backend.service.UserService;
+
+import lombok.Data;
+
+@CrossOrigin(origins = {"http://localhost:5173", "https://instaclone-three-swart.vercel.app"})
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
     @Autowired
     private UserService userService;
     @Autowired
@@ -54,6 +61,7 @@ public class AuthController {
 
     @Data
     public static class SignupRequest {
+
         private String username;
         private String email;
         private String password;
@@ -62,7 +70,8 @@ public class AuthController {
 
     @Data
     public static class LoginRequest {
+
         private String email;
         private String password;
     }
-} 
+}
