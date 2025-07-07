@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:8080";
+// const API_BASE = "http://localhost:8080";
+const API_BASE = "http://instaclone-production-159e.up.railway.app";
 
 export async function apiRequest(
   path,
@@ -8,7 +9,7 @@ export async function apiRequest(
 ) {
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
-  
+
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers,
@@ -16,17 +17,17 @@ export async function apiRequest(
   });
 
   if (res.status === 401 || res.status === 403) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-    throw new Error('Session expired. Please log in again.');
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+    throw new Error("Session expired. Please log in again.");
   }
 
   if (!res.ok) throw new Error(await res.text());
-  
+
   const contentType = res.headers.get("content-type");
   if (contentType && contentType.includes("application/json")) {
     return res.json();
   } else {
     return res.text();
   }
-} 
+}
