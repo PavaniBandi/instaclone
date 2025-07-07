@@ -1,11 +1,14 @@
 package com.example.instaclone_backend.service;
 
 import com.example.instaclone_backend.dto.PostDto;
+import com.example.instaclone_backend.dto.CommentDto;
 import com.example.instaclone_backend.entity.Post;
 import com.example.instaclone_backend.entity.User;
 import com.example.instaclone_backend.entity.Comment;
 import com.example.instaclone_backend.repository.PostRepository;
 import com.example.instaclone_backend.repository.CommentRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -106,12 +109,20 @@ public class PostService {
     private PostDto convertToDto(Post post, Long currentUserId) {
         PostDto dto = new PostDto();
         dto.setId(post.getId());
-        dto.setUser(userService.getUserProfile(post.getUser().getId(), currentUserId));
+        dto.setUserId(post.getUser().getId());
+        dto.setUsername(post.getUser().getUsername());
+        dto.setUserProfilePicture(post.getUser().getProfilePicture());
         dto.setCaption(post.getCaption());
         dto.setImageUrl(post.getImageUrl());
         dto.setCreatedAt(post.getCreatedAt());
         dto.setLikesCount(post.getLikesCount());
         dto.setCommentsCount(post.getCommentsCount());
+        
+        // Convert comments to DTOs
+        List<CommentDto> commentDtos = post.getComments().stream()
+                .map(this::convertCommentToDto)
+                .collect(Collectors.toList());
+        dto.setComments(commentDtos);
         
         if (currentUserId != null) {
             User currentUser = userService.findById(currentUserId).orElse(null);
@@ -120,6 +131,17 @@ public class PostService {
             }
         }
         
+        return dto;
+    }
+    
+    private CommentDto convertCommentToDto(Comment comment) {
+        CommentDto dto = new CommentDto();
+        dto.setId(comment.getId());
+        dto.setUserId(comment.getUser().getId());
+        dto.setUsername(comment.getUser().getUsername());
+        dto.setUserProfilePicture(comment.getUser().getProfilePicture());
+        dto.setContent(comment.getContent());
+        dto.setCreatedAt(comment.getCreatedAt());
         return dto;
     }
     

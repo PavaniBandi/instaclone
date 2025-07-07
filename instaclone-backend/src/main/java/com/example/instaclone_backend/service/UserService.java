@@ -35,6 +35,19 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    public void registerUser(User user) {
+        createUser(user);
+    }
+    
+    public boolean validateCredentials(String email, String password) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            return passwordEncoder.matches(password, user.getPassword());
+        }
+        return false;
+    }
+    
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }

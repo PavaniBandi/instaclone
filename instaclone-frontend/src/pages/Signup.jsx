@@ -16,10 +16,9 @@ export default function Signup({ setToken: setAppToken }) {
     e.preventDefault();
     setError('');
     try {
-      const res = await apiRequest('/auth/signup', 'POST', { email, username, password, fullName });
-      localStorage.setItem('token', res.token);
-      setAppToken(res.token);
-      navigate('/');
+      await apiRequest('/auth/signup', 'POST', { email, username, password, fullName });
+      // After successful signup, redirect to login
+      navigate('/login');
     } catch (err) {
       setError('Signup failed');
     }

@@ -1,7 +1,6 @@
 package com.example.instaclone_backend.dto;
 
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
 public class UserDto {
@@ -10,8 +9,8 @@ public class UserDto {
     private String fullName;
     private String bio;
     private String profilePicture;
-    private int followersCount;
-    private int followingCount;
-    private int postsCount;
+    private Integer followersCount;
+    private Integer followingCount;
+    private Integer postsCount;
     private Boolean isFollowing;
 } 

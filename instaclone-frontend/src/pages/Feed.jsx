@@ -85,15 +85,15 @@ export default function Feed({ token, onLogout }) {
           <div key={post.id} className="border-b border-gray-100 last:border-b-0">
             {/* Post header */}
             <div className="flex items-center justify-between px-4 pt-3 pb-2">
-              <Link to={`/profile/${post.user.id}`}>
+              <Link to={`/profile/${post.userId}`}>
                 <img
-                  src={post.user.profilePicture || `https://i.pravatar.cc/150?u=${post.user.id}`}
+                  src={post.userProfilePicture || `https://i.pravatar.cc/150?u=${post.userId}`}
                   alt="avatar"
                   className="w-9 h-9 rounded-full border object-cover mr-3"
                 />
               </Link>
-              <Link to={`/profile/${post.user.id}`} className="font-semibold hover:underline text-sm">
-                {post.user.username}
+              <Link to={`/profile/${post.userId}`} className="font-semibold hover:underline text-sm">
+                {post.username}
               </Link>
               <button className="text-gray-400 hover:text-gray-600 ml-auto">
                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>
@@ -139,7 +139,7 @@ export default function Feed({ token, onLogout }) {
               
               {/* Caption */}
               <div className="mb-1">
-                <span className="font-semibold mr-2 text-sm">{post.user.username}</span>
+                <span className="font-semibold mr-2 text-sm">{post.username}</span>
                 <span className="text-gray-800 text-sm">{post.caption}</span>
               </div>
               

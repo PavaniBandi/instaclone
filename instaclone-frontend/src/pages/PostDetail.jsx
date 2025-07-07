@@ -70,15 +70,15 @@ export default function PostDetail({ token, onLogout }) {
           {/* Post header */}
           <div className="flex items-center justify-between px-4 pt-3 pb-2">
             <div className="flex items-center">
-              <Link to={`/profile/${post.user.id}`}>
+              <Link to={`/profile/${post.userId}`}>
                 <img
-                  src={post.user.profilePicture || `https://i.pravatar.cc/150?u=${post.user.id}`}
+                  src={post.userProfilePicture || `https://i.pravatar.cc/150?u=${post.userId}`}
                   alt="avatar"
                   className="w-9 h-9 rounded-full border object-cover mr-3"
                 />
               </Link>
-              <Link to={`/profile/${post.user.id}`} className="font-semibold hover:underline text-sm">
-                {post.user.username}
+              <Link to={`/profile/${post.userId}`} className="font-semibold hover:underline text-sm">
+                {post.username}
               </Link>
             </div>
             <button className="text-gray-400 hover:text-gray-600">
@@ -123,7 +123,7 @@ export default function PostDetail({ token, onLogout }) {
             
             {/* Caption */}
             <div className="mb-3">
-              <span className="font-semibold mr-2 text-sm">{post.user.username}</span>
+              <span className="font-semibold mr-2 text-sm">{post.username}</span>
               <span className="text-gray-800 text-sm">{post.caption}</span>
             </div>
             <form onSubmit={handleComment} className="flex mb-4">
@@ -139,15 +139,15 @@ export default function PostDetail({ token, onLogout }) {
             <div className="max-h-48 overflow-y-auto border-t pt-2">
               {post.comments && post.comments.map(c => (
                 <div key={c.id} className="mb-2 flex items-start">
-                  <Link to={`/profile/${c.user.id}`}>
+                  <Link to={`/profile/${c.userId}`}>
                     <img
-                      src={c.user.profilePicture || `https://i.pravatar.cc/150?u=${c.user.id}`}
+                      src={c.userProfilePicture || `https://i.pravatar.cc/150?u=${c.userId}`}
                       alt="avatar"
                       className="w-7 h-7 rounded-full border object-cover mr-2 mt-1"
                     />
                   </Link>
                   <div>
-                    <span className="font-semibold mr-2 text-sm">{c.user.username}</span>
+                    <span className="font-semibold mr-2 text-sm">{c.username}</span>
                     <span className="text-gray-800 text-sm">{c.content}</span>
                     <div className="text-xs text-gray-400 mt-0.5">{new Date(c.createdAt).toLocaleString()}</div>
                   </div>
